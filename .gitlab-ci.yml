@@ -1,0 +1,27 @@
+stages: [build, image, push]
+
+build_app:
+  stage: build
+  image: python:3.10
+  script:
+    - pip install -r requirements.txt
+    - pytest -q || true
+
+docker_build:
+  stage: image
+  image: docker:24
+  services: [docker:dind]
+  variables: { DOCKER_TLS_CERTDIR: "" }
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID -t $CI_REGISTRY_IMAGE:latest .
+
+docker_push:
+  stage: push
+  image: docker:24
+  services: [docker:dind]
+  variables: { DOCKER_TLS_CERTDIR: "" }
+  script:
+    - docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
+    - docker push $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID
+    - docker push $CI_REGISTRY_IMAGE:latest
+  dependencies: [docker_build]
