@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "yourdockerhubuser/my-app"  // change this
+    IMAGE_NAME = "vaishnavi873/my-app"  // change this
     DOCKERHUB = credentials('dockerhub')    // create this credential in Jenkins
   }
 
