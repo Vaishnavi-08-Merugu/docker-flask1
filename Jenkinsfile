@@ -1,42 +1,44 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Jenkins stored creds
-        IMAGE_NAME = 'vaishnavi873/python-flask-app'       // Replace with your DockerHub repo
+  environment {
+    IMAGE_NAME = "vaishnavi873/my-app"  // change this
+    DOCKERHUB = credentials('dockerhub')    // create this credential in Jenkins
+  }
+
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
     }
 
-    stages {
-        stage('Checkout Code') {
-            steps {
-                git 'https://gitlab.com/Vaishnavi-08-Merugu/docker-flask.git'  // replace with your repo
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    dockerImage = docker.build("${IMAGE_NAME}:${BUILD_NUMBER}")
-                }
-            }
-        }
-
-        stage('Push to Docker Hub') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        dockerImage.push("${BUILD_NUMBER}")
-                        dockerImage.push('latest')
-                    }
-                }
-            }
-        }
-
-        stage('Cleanup Local Images') {
-            steps {
-                sh "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
-                sh "docker rmi ${IMAGE_NAME}:latest || true"
-            }
-        }
+    stage('Build (package)') {
+      steps {
+        // install dependencies and run tests (example for Python)
+        bat 'pip install -r requirements.txt'
+        bat 'pytest -q || true'   // optional: run tests but don't fail pipeline here
+      }
     }
+
+    stage('Build Docker Image') {
+      steps {
+        bat "docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} -t ${IMAGE_NAME}:latest ."
+      }
+    }
+
+    stage('Login & Push to Docker Hub') {
+      steps {
+        bat '''
+          echo "${DOCKERHUB_PSW}" | docker login -u "${DOCKERHUB_USR}" --password-stdin
+          docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+          docker push ${IMAGE_NAME}:latest
+        '''
+      }
+    }
+
+    stage('Cleanup') {
+      steps {
+      bat "docker rmi ${IMAGE_NAME}:${BUILD_NUMBER} || true"
+      }
+    }
+  }
 }
