@@ -1,12 +1,11 @@
 pipeline {
   agent any
 
-  environment {
-    // change this
-    DOCKERHUB = credentials('dockerhub')    // create this credential in Jenkins
-    IMAGE_NAME = "vaishnavi873/my-app"
+   environment {
+    DOCKER_REGISTRY = "docker.io"
+    IMAGE_NAME = "vaishnavi873/my-app"   
+    
   }
-
   stages {
     stage('Checkout') {
       steps { checkout scm }
