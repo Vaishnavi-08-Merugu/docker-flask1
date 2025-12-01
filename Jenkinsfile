@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Jenkins stored creds
-        IMAGE_NAME = 'vaishnavi/python-flask-app'       // Replace with your DockerHub repo
+        IMAGE_NAME = 'vaishnavi873/python-flask-app'       // Replace with your DockerHub repo
     }
 
     stages {
