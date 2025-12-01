@@ -2,8 +2,9 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "vaishnavi873/my-app"  // change this
+    // change this
     DOCKERHUB = credentials('dockerhub')    // create this credential in Jenkins
+    IMAGE_NAME = "vaishnavi873/my-app"
   }
 
   stages {
