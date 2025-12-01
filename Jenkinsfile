@@ -73,18 +73,18 @@ pipeline {
       }
     }
 
-    stage('Login & Push to Docker Hub') {
-      steps {
-        // Make sure you have a credentials entry with ID 'dockerhub-creds'
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
-          bat '''
-            echo %DOCKERHUB_PSW% | docker login -u %DOCKERHUB_USR% --password-stdin
-            docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-            docker push ${IMAGE_NAME}:latest
-          '''
-        }
-      }
+   stage('Login & Push to Docker Hub') {
+  steps {
+    withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USR', passwordVariable: 'DOCKERHUB_PSW')]) {
+      bat """
+        echo %DOCKERHUB_PSW% | docker login -u %DOCKERHUB_USR% --password-stdin
+        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
+        docker push ${IMAGE_NAME}:latest
+      """
     }
+  }
+}
+
 
     stage('Cleanup') {
       steps {
